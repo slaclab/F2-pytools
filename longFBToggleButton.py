@@ -9,10 +9,10 @@ PV_FB_CONTROL = 'SIOC:SYS1:ML00:AO856'
 BIT_INDICES = {
     'DL10E':  0,
     'BC11E':  2,
-    'BC11BL:' 3,
+    'BC11BL': 3,
     'BC14E':  1,
     'BC14BL': 5,
-    'BC20E': 4 ,
+    'BC20E':  4,
     }
 
 
