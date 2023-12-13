@@ -3,4 +3,4 @@ FACET-II python tools
 
 Shared functions/modules for HLAs
 
-to do: everything
+to do: almost everything
