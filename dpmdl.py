@@ -33,6 +33,7 @@ def normed_pmdl_history(ndays=2):
             encode_sepr(encode_datestr(T_to))
             )
         result = urlopen(req).read().decode('utf-8')
+        dt = get_data(result, irow=0)
         dT[pv[:4]] = get_data(result, irow=0)
         dPMDL[pv[:4]] = norm_pmdl(get_data(result, irow=1))
         
@@ -54,11 +55,12 @@ def temp_prs_history(ndays=2):
         )
     r1 = urlopen(req1).read().decode('utf-8')
     r2 = urlopen(req2).read().decode('utf-8') 
-    dT = get_data(r1, irow=0)
+    dTT = get_data(r1, irow=0)
     Temp = get_data(r1, irow=1)
+    dTP = get_data(r2, irow=0)
     Prs = get_data(r2, irow=1)
 
-    return dT, Temp, Prs
+    return dTT, Temp, dTP, Prs
 
 def encode_sepr(pv): return pv.replace(':', '%3A')
 
