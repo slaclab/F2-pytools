@@ -3,7 +3,8 @@ FACET-II python tools
 
 Shared functions/modules for HLAs
 
-Contains the following packages:
-* F2_pydm: custom pydm widgetes
-* F2_styles: Qt stylesheets, color and font references
-* F2_tools: random utilities
+Contents:
+* dpmdl.py: calculates relative PMDL phase deltas over 48h
+* dtotr_centroid.py: calculates DTOTR2 image centroid (for tracking)
+* slc_utils: helper functions for SLC devices + AIDA-PVA 
+* widgets.py: custom PyDM widgetes
