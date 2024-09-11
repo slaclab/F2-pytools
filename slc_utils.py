@@ -74,4 +74,4 @@ if __name__ == '__main__':
 
     # te = time.time()-ts
     # print(te)
-    return
+    sys.exit(0)
