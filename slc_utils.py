@@ -13,7 +13,8 @@ from p4p.nt import NTURI, NTTable
 
 CTX = Context('pva')
 
-BAD_KLYS = ['K11_1', 'K11_2', 'K11_3', 'K13_2', 'K14_7', 'K15_2', 'K19_7', 'K19_8']
+# BAD_KLYS = ['K11_1', 'K11_2', 'K11_3', 'K14_7', 'K15_2', 'K19_7', 'K19_8']
+BAD_KLYS = []
 
 F2_ALL_KLYS = []
 for s in range(11,20):
