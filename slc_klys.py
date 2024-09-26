@@ -6,7 +6,7 @@ CTX = Context('pva')
 F2_ALL_KLYS = []
 for s in range(11,20):
     for k in range(1,9):
-        if f'K{s}_{k}' not in BAD_KLYS: F2_ALL_KLYS.append(f'KLYS:LI{s}:{k}1')
+        F2_ALL_KLYS.append(f'KLYS:LI{s}:{k}1')
 
 
 URI_KLYS_TACT = NTURI([('TYPE','s'), ('BEAM','s')])
