@@ -247,12 +247,12 @@ class F2KlysToggleButton(QFrame):
         self.toggle_on.clicked.connect(self.react)
         self.toggle_off.clicked.connect(self.deact)
 
-        self.setAlignment(Qt.AlignCenter)
-        self.setAlignment(Qt.AlignCenter)
+        # self.setAlignment(Qt.AlignCenter)
+        # self.setAlignment(Qt.AlignCenter)
 
         L = QVBoxLayout()
-        L.addWidget(self.toggle_on)
-        L.addWidget(self.toggle_off)
+        L.addWidget(self.toggle_on, Qt.AlignCenter)
+        L.addWidget(self.toggle_off, Qt.AlignCenter)
         L.setSpacing(1)
         L.setContentsMargins(0,0,0,0)
         self.setLayout(L)
