@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 from pydm.widgets.label import PyDMLabel
 
 from epics import caget, caput
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QPushButton
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QPushButton, QGraphicsOpacityEffect
 from pydm.widgets.byte import PyDMByteIndicator
 from pydm.widgets.channel import PyDMChannel
 
