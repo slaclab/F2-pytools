@@ -256,12 +256,12 @@ class F2KlysToggleButton(QFrame):
         return
 
     def react(self):
-        slck.react(self.klys_name)
+        slck.react(self.kname)
         self.set_button_enable_states(onbeam=True)
         return
 
     def deact(self):
-        slck.deact(self.klys_name)
+        slck.deact(self.kname)
         self.set_button_enable_states(onbeam=False)
         return
 
