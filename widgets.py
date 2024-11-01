@@ -269,6 +269,7 @@ class F2KlysToggleButton(QFrame):
         if maint:
             self.setStyleSheet(STYLE_BRD_CYAN)
             self.setEnabled(False)
+            self.setGraphicsEffect(QGraphicsOpacityEffect(opacity=0.5))
             return
         else:
             self.setEnabled(True)
