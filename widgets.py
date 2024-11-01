@@ -2,16 +2,24 @@
 
 # =============================================================================
 
+import os
+import sys
+import numpy as np
 from PyQt5.QtCore import Qt
 from pydm.widgets.label import PyDMLabel
 
 from epics import caget, caput
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QPushButton
 from pydm.widgets.byte import PyDMByteIndicator
 from pydm.widgets.channel import PyDMChannel
 
 from p4p.client.thread import Context
 from p4p.nt import NTURI
+SELF_PATH = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.join(*os.path.split(SELF_PATH)[:-1])
+sys.path.append(REPO_ROOT)
+from F2_pytools import slc_klys as slck
+# import slc_klys as slck
 
 STYLE_TEXT_GREEN = """
 color: rgb(0,255,0);
@@ -33,9 +41,17 @@ border-style: solid;
 }
 """
 
-STYLE_BRD_RED = """
+STYLE_BRD_YELLOW = """
 QFrame{
-border-color: rgb(220,0,0);
+border-color: rgb(255,255,0);;
+border-width: 2px;
+border-style: solid;
+}
+"""
+
+STYLE_BRD_CYAN = """
+QFrame{
+border-color: color: rgb(0,255,255);
 border-width: 2px;
 border-style: solid;
 }
@@ -216,3 +232,53 @@ class F2LongFBToggleButton(QFrame):
         self.toggle_off.setDown(not feedback_on)
         self.toggle_off.setEnabled(feedback_on)
         self.toggle_off.setStyleSheet(off_style)
+
+
+class F2KlysToggleButton(QFrame):
+
+    def __init__(self, klys_name, parent=None, args=None):
+        QFrame.__init__(self, parent=parent)
+        self.toggle_on = QPushButton('REACT')
+        self.toggle_off = QPushButton('DEACT')
+        self.kname = klys_name
+
+        self.setStyleSheet(STYLE_BRD_GREEN)
+
+        self.toggle_on.clicked.connect(self.react)
+        self.toggle_off.clicked.connect(self.deact)
+
+        L = QVBoxLayout()
+        L.addWidget(self.toggle_on)
+        L.addWidget(self.toggle_off)
+        L.setSpacing(1)
+        L.setContentsMargins(0,0,0,0)
+        self.setLayout(L)
+        return
+
+    def react(self):
+        slck.react(self.klys_name)
+        self.set_button_enable_states(onbeam=True)
+        return
+
+    def deact(self):
+        slck.deact(self.klys_name)
+        self.set_button_enable_states(onbeam=False)
+        return
+
+    def set_button_enable_states(self, onbeam=True, maint=False):
+        if maint:
+            self.setStyleSheet(STYLE_BRD_CYAN)
+            self.setEnabled(False)
+            return
+        else:
+            self.setEnabled(True)
+
+        border = STYLE_BRD_GREEN if onbeam else STYLE_BRD_YELLOW
+        self.setStyleSheet(border)
+
+        self.toggle_on.setDown(onbeam)
+        self.toggle_on.setEnabled(not onbeam)
+
+        self.toggle_off.setDown(not onbeam)
+        self.toggle_off.setEnabled(onbeam)
+

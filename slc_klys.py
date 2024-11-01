@@ -9,6 +9,7 @@ for s in range(11,20):
         F2_ALL_KLYS.append(f'KLYS:LI{s}:{k}1')
 
 
+URI_KLYS_SET = NTURI([('VALUE','s'), ('BEAM','s')])
 URI_KLYS_TACT = NTURI([('TYPE','s'), ('BEAM','s')])
 URI_ALL_KLYS = NTURI([('DEVICES','as'), ('BEAM','s')])
 NTT_ALL_KLYS = NTTable([
@@ -42,3 +43,17 @@ def get_all_klys_stat():
     k_status = {}
     for r in NTT_ALL_KLYS.unwrap(res): k_status[r['name']] = r
     return k_status
+
+# activate a klystron on beamcode 10
+def react(klys_channel): return _set_klys(klys_channel)
+
+# deactivate klystron on beamcode 10
+def deact(klys_channel): return _set_klys(klys_channel, react=False)
+
+def _set_klys(klys_channel, react=True):
+    ntval = URI_KLYS_SET.wrap(
+        scheme='pva', path=f'{klys_channel}:TACT',
+        kws={'VALUE':1 if react else 0, 'BEAM':'10'}
+        )
+    res = CTX.rpc(f'{klys_channel}:TACT', ntval)
+    return res
