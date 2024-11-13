@@ -24,6 +24,7 @@ MASK = np.ones((IMG_W,IMG_H),dtype=int)
 def calc_dtotr_centroid():
     """ get the image centroid from DTOTR2 & determine CUD image ROI """
     image = np.reshape(caget(PV_DTOTR_IMG), (IMG_W,IMG_H), order='F')
+    image = image - min(image.flatten())
     mask = (image > sk.filters.threshold_mean(image)).astype(int)
     cy,cx = regionprops(mask, image)[0].centroid
     return cx,cy
