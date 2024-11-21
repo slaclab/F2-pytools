@@ -19,7 +19,6 @@ SELF_PATH = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(*os.path.split(SELF_PATH)[:-1])
 sys.path.append(REPO_ROOT)
 from F2_pytools import slc_klys as slck
-# import slc_klys as slck
 
 STYLE_TEXT_GREEN = """
 color: rgb(0,255,0);
@@ -36,6 +35,14 @@ color: rgb(255,255,255);
 STYLE_BRD_GREEN = """
 QFrame{
 border-color: rgb(80,255,120);
+border-width: 2px;
+border-style: solid;
+}
+"""
+
+STYLE_BRD_RED = """
+QFrame{
+border-color: rgb(255,0,0);
 border-width: 2px;
 border-style: solid;
 }
