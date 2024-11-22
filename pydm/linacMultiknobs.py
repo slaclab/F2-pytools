@@ -2,7 +2,7 @@ import os
 import sys
 from functools import partial
 from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QFrame, QGridLayout, QPushButton, QLineEdit, QSlider, QLabel
 from epics import get_pv
 
@@ -44,6 +44,8 @@ PHASE_HIGH = 0
 
 # default increment in degS
 DEFAULT_STEP_SIZE = 0.5
+
+REFRESH_MS = 1000
 
 class l2PhaseController(QFrame):
     """ L2 phase knob, can click to increment/decrement or type deltas """
@@ -131,11 +133,10 @@ class l2PhaseController(QFrame):
         # 1st & 2nd row: pdes/pact readbacks
         L.addWidget(lbl_des, 0,3)
         L.addWidget(lbl_act, 0,4)
-
         L.addWidget(self.l2_des_rbv, 1,3)
         L.addWidget(self.l2_act_rbv, 1,4)
 
-        # 3rd row: slider readback
+        # row 3: slider readback
         L.addWidget(lbl_low, 2,0)
         L.addWidget(self.l2_indicator, 2,1, 1,6)
         L.addWidget(lbl_high, 2,7)
@@ -145,7 +146,7 @@ class l2PhaseController(QFrame):
         L.addWidget(self.ctl_manual, 3,3, 1,2)
         L.addWidget(self.ctl_incr,   3,6)
 
-        # row: 
+        # row 5: step size control
         L.addWidget(lbl_step, 4,3)
         L.addWidget(self.set_step, 4,4)
 
@@ -154,6 +155,10 @@ class l2PhaseController(QFrame):
         self.setLayout(L)
 
         self.update_readbacks()
+        self.refresh_timer = QTimer(self)
+        self.refresh_timer.start()
+        self.refresh_timer.setInterval(REFRESH_MS)
+        self.refresh_timer.timeout.connect(self.update_readbacks)
         return
 
     @property
@@ -172,24 +177,16 @@ class l2PhaseController(QFrame):
 
     def decr(self): self.upadte_phase(-1 * self.step_size)   
 
-    def update_phase_manual(self):
-        """
-        updates phase to displacement requested by the manual input
-        note: subtracts the current displacement to get the right delta to the mkb
-        """
-        self.update_phase(float(self.ctl_manual.text()) - self.displacement)
+    # moves the multiknob by the delta from the entered text
+    def update_phase_manual(self): self.update_phase(float(self.ctl_manual.text()) - self.displacement)
 
     def update_phase(self, delta):
-        """ write & track phase delta """
+        """ writes & tracks phase delta """
         self.displacement += delta
         set_mkb(self.mkname, delta)
         self.update_readbacks()
 
-    def reset(self):
-        """ restores initial setting, zeros displacement """
-        set_mkb(self.mkbname, -self.displacement)
-        self.displacement = 0.0
-        self.update_readbacks()
+    def reset(self): self.update_phase(-1 * self.displacement)
 
     def update_readbacks(self, **kw):
         self.ctl_manual.setText(f'{self.displacement:.1f}')
