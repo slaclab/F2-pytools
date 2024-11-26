@@ -175,7 +175,7 @@ class l2PhaseController(QFrame):
 
     def incr(self): self.update_phase(self.step_size)
 
-    def decr(self): self.upadte_phase(-1 * self.step_size)   
+    def decr(self): self.update_phase(-1 * self.step_size)   
 
     # moves the multiknob by the delta from the entered text
     def update_phase_manual(self): self.update_phase(float(self.ctl_manual.text()) - self.displacement)

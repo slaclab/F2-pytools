@@ -29,10 +29,79 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>L2 phase multiknob</string>
+   <string>AIDA multiknob controller</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout"/>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="banner" native="true">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>10</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255,149,60);
+color: rgb(0, 34, 130);</string>
+     </property>
+     <widget class="PyDMLabel" name="PyDMLabel_14">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>0</y>
+        <width>200</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="alarmSensitiveBorder" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="channel" stdset="0">
+       <string>SIOC:SYS1:AL00:TOD</string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="body" native="true">
+     <layout class="QGridLayout" name="gridLayout"/>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PyDMLabel</class>
+   <extends>QLabel</extends>
+   <header>pydm.widgets.label</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
