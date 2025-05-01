@@ -19,7 +19,6 @@ INJ_TEMP_PVS = [
     'CATH:IN10:111:TEMP1',
     ]
 INJ_TEMP_LABELS = [
-    'Chiller',
     'Laser Table',
     'Vitara',
     'Regen',
