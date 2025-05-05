@@ -85,7 +85,7 @@ LI19_BLACKLIST = [
     ]
 
 
-def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
+def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x', z_in=None, z_fin=None):
     """
     Fits the BPM orbit data to extract trajectory parameters A, B, C.
     
@@ -105,6 +105,11 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
     
     for bpm in bpms:
 
+        # Filter BPMs based on z-interval if specified
+        if z_in is not None and z_fin is not None:
+            if bpm.z < z_in or bpm.z > z_fin:
+                continue
+        
         # get the measurement based on the axis
         if axis == 'x':
             nu = bpm.x_pv_obj.get()
@@ -159,27 +164,29 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
     return p, sigma_p
 
 
-def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=1000, axis='x', ax=None):
+def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=1000, axis='x', z_in=None, z_fin=None, ax=None):
     """
-    Plots the measured BPM data and the fitted trajectory.
+    Plots the measured BPM data and the fitted trajectory within a specified z-interval.
     
     Parameters:
-      live_orbit
-      model
-      p: array of fitted trajectory parameters
-      sigma_0: placeholder BPM resolution in meters
-      num_points: number of points to use for plotting the fitted trajectory
+      live_orbit: Orbit data object containing BPMs
+      model: Model object providing twiss parameters
+      p: Array of fitted trajectory parameters [A, B, C]
+      sigma_p: Array of uncertainties [sigma_A, sigma_B, sigma_C]
+      sigma_0: Placeholder BPM resolution in meters 
+      num_points: Number of points for the fitted trajectory
       axis: 'x' or 'y' (which orbit to plot)
-      ax: matplotlib axis object to plot on.
+      z_in: Start of the z-interval in meters 
+      z_fin: End of the z-interval in meters 
+      ax: Matplotlib axis object to plot on
       
     Returns:
-      matplotlib axis with the plot 
+      ax: Matplotlib axis with the plot
     """
     
     bpms = live_orbit.bpms
-    s_bpm = []
-    nu_bpm = []
-    sigma_bpm = []
+    
+    # Collect twiss data for interpolation from all BPMs with valid measurements
     s_known = []
     beta_known = []
     psi_known = []
@@ -193,11 +200,6 @@ def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=100
           
         if nu is None or np.isnan(nu):
             continue
-        nu /= 1000  # Convert mm to m
-        s = bpm.z
-        s_bpm.append(s)
-        nu_bpm.append(nu)
-        sigma_bpm.append(sigma_0)
         
         try:
             twiss = model.get_twiss(bpm.name)
@@ -209,13 +211,47 @@ def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=100
                 beta = twiss['beta_y']
                 psi  = twiss['psi_y']
                 eta  = twiss['eta_y']
-            s_known.append(s)
+            s_known.append(bpm.z)
             beta_known.append(beta)
             psi_known.append(psi)
             eta_known.append(eta)
         except (IndexError, KeyError, AttributeError):
             print(f"Warning: Could not retrieve twiss parameters for BPM {bpm.name}. Skipping for interpolation.")
+            continue
     
+    # Collect measurements for plotting within the specified z-interval
+    s_bpm = []
+    nu_bpm = []
+    sigma_bpm = []
+    
+    for bpm in bpms:
+        if axis == 'x':
+            nu = bpm.x_pv_obj.get()
+        elif axis == 'y':
+            nu = bpm.y_pv_obj.get()
+          
+        if nu is None or np.isnan(nu):
+            continue
+        nu /= 1000  # Convert mm to m
+        
+        # Filter BPMs based on z-interval if specified
+        if z_in is not None and z_fin is not None:
+            if bpm.z < z_in or bpm.z > z_fin:
+                continue
+        
+        s_bpm.append(bpm.z)
+        nu_bpm.append(nu)
+        sigma_bpm.append(sigma_0)
+    
+    # Determine the range for the fitted trajectory
+    if z_in is not None and z_fin is not None:
+        s_min = z_in
+        s_max = z_fin
+    else:
+        s_min = min(s_bpm)
+        s_max = max(s_bpm)
+    
+    s_fit = np.linspace(s_min, s_max, num_points)
     
     # Sort known points for interpolation
     sorted_indices = np.argsort(s_known)
@@ -229,11 +265,7 @@ def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=100
     psi_interp = interp1d(s_known, psi_known, kind='linear', fill_value="extrapolate")
     eta_interp = interp1d(s_known, eta_known, kind='linear', fill_value="extrapolate")
     
-    # Generate s positions for the fitted trajectory
-    s_min = min(s_bpm)
-    s_max = max(s_bpm)
-    s_fit = np.linspace(s_min, s_max, num_points)
-    
+    # Generate fitted trajectory
     nu_fit = []
     for s in s_fit:
         beta_val = beta_interp(s)
@@ -262,8 +294,9 @@ def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=100
         f"B = {p[1]:.6f} ± {sigma_p[1]:.6f}\n"
         f"C = {p[2]:.6f} ± {sigma_p[2]:.6f}"
     )
+    if z_in is not None and z_fin is not None:
+        param_text += f"\nFit over z = [{z_in}, {z_fin}] m"
     
-    # Choose position for text
     ax.text(0.98, 0.98, param_text,
             verticalalignment='top', horizontalalignment='right',
             transform=ax.transAxes,
@@ -282,22 +315,26 @@ def plot_orbit_fit(live_orbit, model, p, sigma_p, sigma_0=0.0001, num_points=100
     return ax
 
 if __name__ == '__main__':
-    # test orbit fit & plot
+    # Test orbit fit & plot with a z-interval
 
     # Create model and live orbit objects
     model = Model('FACET2E', 'BMAD', use_design=True)
     live_orbit = FacetOrbit(ignore_bad_bpms=True, rate_suffix='TH', scp_suffix='57')
     live_orbit.connect()
 
-    # Fit x orbit
-    p_x, sigma_p_x = fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x')
+    # Define z-interval
+    z_in = 1000
+    z_fin = 1500  
+
+    # Fit x orbit with z-interval
+    p_x, sigma_p_x = fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x', z_in=z_in, z_fin=z_fin)
     print("X Orbit Fit:")
     print(f"A = {p_x[0]:.6f} ± {sigma_p_x[0]:.6f}")
     print(f"B = {p_x[1]:.6f} ± {sigma_p_x[1]:.6f}")
     print(f"C = {p_x[2]:.6f} ± {sigma_p_x[2]:.6f}")
 
-    # Fit y orbit
-    p_y, sigma_p_y = fit_orbit(live_orbit, model, sigma_0=0.0001, axis='y')
+    # Fit y orbit with z-interval
+    p_y, sigma_p_y = fit_orbit(live_orbit, model, sigma_0=0.0001, axis='y', z_in=z_in, z_fin=z_fin)
     print("\nY Orbit Fit:")
     print(f"A = {p_y[0]:.6f} ± {sigma_p_y[0]:.6f}")
     print(f"B = {p_y[1]:.6f} ± {sigma_p_y[1]:.6f}")
@@ -305,8 +342,8 @@ if __name__ == '__main__':
 
     # Create a figure with two subplots to display both fits
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
-    plot_orbit_fit(live_orbit, model, p_x, sigma_p_x, sigma_0=0.0001, num_points=1000, axis='x', ax=ax1)
-    plot_orbit_fit(live_orbit, model, p_y, sigma_p_y, sigma_0=0.0001, num_points=1000, axis='y', ax=ax2)
+    plot_orbit_fit(live_orbit, model, p_x, sigma_p_x, sigma_0=0.0001, num_points=1000, axis='x', z_in=z_in, z_fin=z_fin, ax=ax1)
+    plot_orbit_fit(live_orbit, model, p_y, sigma_p_y, sigma_0=0.0001, num_points=1000, axis='y', z_in=z_in, z_fin=z_fin, ax=ax2)
     plt.tight_layout()
     plt.show()
 
