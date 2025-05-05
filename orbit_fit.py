@@ -77,6 +77,14 @@ AIDA_NAME_FLIP_LIST=  [
     "BPMS:LI19:901",
     ]
 
+LI19_BLACKLIST = [
+    "BPMS:LI19:501",
+    "BPMS:LI19:601",
+    "BPMS:LI19:701",
+    "BPMS:LI19:901",
+    ]
+
+
 def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
     """
     Fits the BPM orbit data to extract trajectory parameters A, B, C.
@@ -96,6 +104,7 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
     z_list = []
     
     for bpm in bpms:
+
         # get the measurement based on the axis
         if axis == 'x':
             nu = bpm.x_pv_obj.get()
@@ -108,6 +117,7 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
         
         # Check if BPM name exists in the model
         bpm_name = bpm.name
+        if bpm_name in LI19_BLACKLIST: continue
         if bpm_name in AIDA_NAME_FLIP_LIST:
             ns = bpm_name.split(':')
             if bpm_name == 'BPMS:LI13:301':
