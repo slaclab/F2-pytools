@@ -110,9 +110,9 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
             ns = bpm_name.split(':')
             bpm_name = f'{ns[1]}:{ns[0]}:{ns[2]}'
 
-        model._get_indices_for_names([bpm.name], split_suffix=False, ignore_bad_names=False)
+        model._get_indices_for_names([bpm_name], split_suffix=False, ignore_bad_names=False)
         
-        twiss = model.get_twiss(bpm.name)
+        twiss = model.get_twiss(bpm_name)
         if axis == 'x':
             beta = twiss['beta_x']
             psi  = twiss['psi_x']
