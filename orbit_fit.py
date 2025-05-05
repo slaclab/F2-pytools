@@ -33,6 +33,8 @@ AIDA_NAME_FLIP_LIST=  [
     "BPMS:LI14:401",
     "BPMS:LI14:501",
     "BPMS:LI14:601",
+    "BPMS:LI14:701",
+    "BPMS:LI14:901",
     "BPMS:LI15:201",
     "BPMS:LI15:301",
     "BPMS:LI15:401",
@@ -108,7 +110,10 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
         bpm_name = bpm.name
         if bpm_name in AIDA_NAME_FLIP_LIST:
             ns = bpm_name.split(':')
-            bpm_name = f'{ns[1]}:{ns[0]}:{ns[2]}'
+            if bpm_name == 'BPMS:LI13:301':
+                bpm_name = f'{ns[1]}:{ns[0]}:303'
+            else:
+                bpm_name = f'{ns[1]}:{ns[0]}:{ns[2]}'
 
         model._get_indices_for_names([bpm_name], split_suffix=False, ignore_bad_names=False)
         
