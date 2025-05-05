@@ -35,11 +35,12 @@ def fit_orbit(live_orbit, model, sigma_0=0.0001, axis='x'):
         nu /= 1000  # convert mm to m
         
         # Check if BPM name exists in the model
-        try:
-            model._get_indices_for_names([bpm.name], split_suffix=False, ignore_bad_names=False)
-        except IndexError:
-            print(f"Warning: BPM {bpm.name} not found in the model. Skipping.")
-            continue
+        bpm_name = bpm.name
+        if bpm_name in AIDA_NAME_FLIP_LIST:
+            ns = bpm_name.split(':')
+            bpm_name = f'{ns[1]}:{ns[0]}:{ns[2]}'
+
+        model._get_indices_for_names([bpm.name], split_suffix=False, ignore_bad_names=False)
         
         twiss = model.get_twiss(bpm.name)
         if axis == 'x':
