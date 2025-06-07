@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 
 class imgData:
     """
@@ -82,6 +83,8 @@ class imgData:
         """
         Applies a user supplied function 'funcIn' to all the images in the data set.
         Result is written to self.scalars.
+        The function is applied image by image (not on a block of all image per step)
+        The function must return a scalar or this will break.
         
         Parameters
         ----------
@@ -97,16 +100,20 @@ class imgData:
         # Create a holder for the data
         a = np.zeros(len(self.steps), dtype=np.float32)
 
-        k = 0
         for u in np.unique(self.steps):
             # Load the HDF5 file
-            f = h5py.File(fart.filelocs[u-1], "r")
-            # Iterate through the matched shots and apply a function
-            for i in zip(self.relativeIdxByStep[u-1], self.absoluteIdxByStep[u-1]):
-                f['entry']['data']['data'][i]
+            f = h5py.File(self.filelocs[u-1], "r")
             
-            print(self.filelocs[u - 1])
-        # You need to loop through the list of relativeIdxByStep and apply the function to the images, then save in the correct location using absoluteIdxByStep.
+            # Iterate through the matched shots and apply the supplied function
+            for i, j in zip(self.relativeIdxByStep[u-1], self.absoluteIdxByStep[u-1]):
+                a[j] = funcIn(f['entry']['data']['data'][i], *args)
+                
+            # Close the HDF5 file
+            f.close()
+            
+        # Save the data to the class so it can be used later.
+        self.scalars = a
+
         
         
 
