@@ -114,7 +114,40 @@ class imgData:
         # Save the data to the class so it can be used later.
         self.scalars = a
 
+    def convertScalarIndexToFileAndIdx(self, idx : "int") -> "int, int":
+        """
+        Converts the scalar index from the DAQ to a filenumber and index within that file.
+        This enables the user to load a specific image when the only know the scalar index as
+        stored in the DAQ. A 'scalar index' is the 'common_index' from the DAQ.
         
+        Parameters
+        ----------
+        idx : Scalar index to convert into an image location to load (integer)
+
+        Returns
+        -------
+        filenumber : The file number to load (integer)
+        fileIdx : The index for the image desired, inside the filenumber that will be loaded (integer)
+        """
+        return idx // self.n_shot, idx % self.n_shot
+
+    def returnImageByScalarIndex(self, idx : "int") -> "np.ndarray":
+        """
+        Extract a single image using a scalar index from the DAQ
+        
+        Parameters
+        ----------
+        idx : Scalar index to convert into an image location to load (integer)
+
+        Returns
+        -------
+        img : image data (np.ndarray)
+        """
+        aa = self.convertScalarIndexToFileAndIdx(idx)
+        f = h5py.File(self.filelocs[aa[0]], "r")
+        img = f['entry']['data']['data'][aa[1]]
+        f.close()
+        return img
         
 
 
