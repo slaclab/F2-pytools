@@ -15,15 +15,6 @@ class imgData(pvData):
                  pici : "array like" = None,
                 n_shot : "scalar" = None):
         super().__init__(inputName, None, inputSteps)
-        
-        # # Name of the PV/camera
-        # self.name = inputName # Comes from parent class
-        
-        # # The steps for each data point
-        # self.steps = inputSteps # Comes from parent class
-
-        # # Holder for scalars that result from applying a function to the images.
-        # self.data = None  # Comes from parent class
 
         # The index for each matched data point
         self.pici = pici
@@ -115,6 +106,8 @@ class imgData(pvData):
             
         # Save the data to the class so it can be used later.
         self.data = a
+        # Split the data up by step.
+        self.splitDataIntoSteps()
 
     def convertScalarIndexToFileAndIdx(self, idx : "int") -> "int, int":
         """
