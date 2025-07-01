@@ -1,7 +1,8 @@
 import numpy as np
 import h5py
+from PVDATA import pvData
 
-class imgData:
+class imgData(pvData):
     """
     This class is for storing the data associated with one PV.
     Including data by step.
@@ -13,12 +14,16 @@ class imgData:
                 fileNames : "array like" = None,
                  pici : "array like" = None,
                 n_shot : "scalar" = None):
+        super().__init__(inputName, None, inputSteps)
         
-        # Name of the PV/camera
-        self.name = inputName
+        # # Name of the PV/camera
+        # self.name = inputName # Comes from parent class
         
-        # The steps for each data point
-        self.steps = inputSteps
+        # # The steps for each data point
+        # self.steps = inputSteps # Comes from parent class
+
+        # # Holder for scalars that result from applying a function to the images.
+        # self.data = None  # Comes from parent class
 
         # The index for each matched data point
         self.pici = pici
@@ -28,9 +33,6 @@ class imgData:
 
         # The filenames including path for the hdf5 files
         self.filelocs = fileNames
-
-        # Holder for scalars that result from applying a function to the images.
-        self.scalars = None
 
         # Populate the idxByStep Data
         # If we have two steps with 3 shots each and all data is matched:
@@ -82,7 +84,7 @@ class imgData:
     def applyFunctionToImagesScalarOutput(self, funcIn, *args) -> None:
         """
         Applies a user supplied function 'funcIn' to all the images in the data set.
-        Result is written to self.scalars.
+        Result is written to self.data.
         The function is applied image by image (not on a block of all image per step)
         The function must return a scalar or this will break.
         
@@ -112,7 +114,7 @@ class imgData:
             f.close()
             
         # Save the data to the class so it can be used later.
-        self.scalars = a
+        self.data = a
 
     def convertScalarIndexToFileAndIdx(self, idx : "int") -> "int, int":
         """

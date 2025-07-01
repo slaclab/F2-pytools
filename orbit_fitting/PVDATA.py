@@ -65,6 +65,9 @@ class pvData:
         -------
         None
         """
+        if self.data is None:
+            return
+        
         temp = []
         for u in np.unique(self.steps):
             temp.append(self.data[np.where(self.steps == u)])
