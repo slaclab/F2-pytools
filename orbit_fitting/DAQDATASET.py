@@ -14,15 +14,34 @@ class daqDataSet:
         # If the DAQ has SCP data, select the appropriate indexes
         for k in self.data['scalars'].keys():
             if k.split("_")[0] == "SCP":
-                # psci = python scalar common index (for BSA data)
-                self.psci = self.data['scalars']['common_index_inclSCP'] -1
-                # pssi = python scalar scp index
-                self.pssi = self.data['scalars']['common_index_SCP'] - 1
+                # --------- If you find this later than 8/30/25 delete the stuff between -------
+                # # psci = python scalar common index (for BSA data)
+                # self.psci = self.data['scalars']['common_index_inclSCP'] - 1
+
+                # # pssi = python scalar scp index
+                # self.pssi = self.data['scalars']['common_index_SCP'] - 1
+                # ------------------------------------------------------------------------------
+
+                # Load the BSA and SCP indices
+                try:
+                    # Try to load the new style of BSA and SCP indices
+                    # psci = python scalar common index (for BSA data)
+                    self.psci = self.data['scalars']['common_index_inclSCP'] - 1
+                    # pssi = python scalar scp index
+                    self.pssi = self.data['scalars']['common_index_SCP'] - 1
+                except:
+                    # If the old style is found, warn the user they may not match.
+                    print("Found old style SCP indexes - they won't match EPICS BSA data automatically")
+                else:
+                    # Load the old style of indices.
+                    self.psci = self.data['scalars']['common_index'] - 1
+                    self.pssi = self.data['scalars']['SCP_common_idx'] - 1
+                  
                 self.has_scp = 1
                 break
             else:
-                # Store the scalar index for python. psci = python scalar common index
                 # There is always BSA data even if there isn't SCP data
+                # Store the scalar index for python. psci = python scalar common index
                 self.psci = self.data['scalars']['common_index'] - 1
                 self.has_scp = 0
         
