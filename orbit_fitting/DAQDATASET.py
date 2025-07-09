@@ -27,15 +27,18 @@ class daqDataSet:
                     # Try to load the new style of BSA and SCP indices
                     # psci = python scalar common index (for BSA data)
                     self.psci = self.data['scalars']['common_index_inclSCP'] - 1
-                    # pssi = python scalar scp index
-                    self.pssi = self.data['scalars']['common_index_SCP'] - 1
                 except:
                     # If the old style is found, warn the user they may not match.
                     print("Found old style SCP indexes - they won't match EPICS BSA data automatically")
-                else:
                     # Load the old style of indices.
                     self.psci = self.data['scalars']['common_index'] - 1
                     self.pssi = self.data['scalars']['SCP_common_idx'] - 1
+                else:
+                    # If there is no error, load the new style of indices
+                    # psci = python scalar common index (for BSA data)
+                    self.psci = self.data['scalars']['common_index_inclSCP'] - 1
+                    # pssi = python scalar scp index
+                    self.pssi = self.data['scalars']['common_index_SCP'] - 1
                   
                 self.has_scp = 1
                 break
