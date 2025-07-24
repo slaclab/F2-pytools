@@ -10,7 +10,6 @@ class daqDataSet:
         
         self.data = scipy.io.loadmat(daqFile, simplify_cells=True)["data_struct"]
         
-        
         # If the DAQ has SCP data, select the appropriate indexes
         for k in self.data['scalars'].keys():
             if k.split("_")[0] == "SCP":
@@ -164,8 +163,11 @@ class daqDataSet:
             # Now cycle through the PVs and return the PV if it is found
             # This only goes one level deep because that is all there is in the DAQ/Scalars
             if isinstance(self.data['scalars'][k], dict):
+
+                # Extract the data based on the type of data
                 for j in sorted(self.data['scalars'][k].keys()):
                     if j == inputPV:
+                        # Check if the data is SCP data
                         if k.split("_")[0] == "SCP":
                             # The SCP data can have 0s in it when it doesn't get data.
                             # There is still a good time stamp, but not good data.
@@ -173,6 +175,18 @@ class daqDataSet:
                             temp = self.data['scalars'][k][j][self.pssi].astype(float)
                             temp[temp == 0] = np.nan
                             return temp
+                        
+                        # Handle nonBSA data
+                        if k.split("_")[0] == "nonBSA":
+                            # If the data isn't SCP or BSA it can be any length.
+                            # Return data that is a length consistent with pssi and psci
+                            temp = self.data['scalars'][k][j].astype(float)
+                            # If the vector is too short, pad it with NaN
+                            if self.psci[-1] > len(temp):
+                                temp = np.pad(temp, (0, self.psci[-1] - len(temp)), 'constant', constant_values=np.nan)
+                            return temp[self.psci]
+                        
+                        # Assume the data is BSA
                         else:
                             return self.data['scalars'][k][j][self.psci].astype(float)
         
