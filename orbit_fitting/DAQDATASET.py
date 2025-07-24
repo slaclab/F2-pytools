@@ -167,7 +167,7 @@ class daqDataSet:
                 # Extract the data based on the type of data
                 for j in sorted(self.data['scalars'][k].keys()):
                     if j == inputPV:
-                        # Check if the data is SCP data
+                        # Handle SCP data
                         if k.split("_")[0] == "SCP":
                             # The SCP data can have 0s in it when it doesn't get data.
                             # There is still a good time stamp, but not good data.
@@ -177,16 +177,16 @@ class daqDataSet:
                             return temp
                         
                         # Handle nonBSA data
-                        if k.split("_")[0] == "nonBSA":
+                        elif k.split("_")[0] == "nonBSA":
                             # If the data isn't SCP or BSA it can be any length.
                             # Return data that is a length consistent with pssi and psci
                             temp = self.data['scalars'][k][j].astype(float)
                             # If the vector is too short, pad it with NaN
                             if self.psci[-1] > len(temp):
-                                temp = np.pad(temp, (0, self.psci[-1] - len(temp)), 'constant', constant_values=np.nan)
+                                temp = np.pad(temp, (0, self.psci[-1] - len(temp) + 1), 'constant', constant_values=np.nan)
                             return temp[self.psci]
                         
-                        # Assume the data is BSA
+                        # Handle BSA data (all that is left if it isn't SCP or nonBSA)
                         else:
                             return self.data['scalars'][k][j][self.psci].astype(float)
         
@@ -194,7 +194,7 @@ class daqDataSet:
         temp = np.empty((np.shape(self.psci)))
         temp[:] = np.nan
         return temp
-        # return np.empty((0))
+
 
     def returnBpmXandY(self, epicsEleNames : "list, strings") -> "list, np.adarray":
         """
