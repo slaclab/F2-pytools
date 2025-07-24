@@ -22,9 +22,9 @@ class imgData(pvData):
         # The requested number of shots per step
         self.n_shot = n_shot
 
-        # The filenames including path for the hdf5 files
-        if not isinstance(fileNames,list):
-            fileNames = [fileNames]
+        # # The filenames including path for the hdf5 files
+        # if not isinstance(fileNames, list):
+        #     fileNames = [fileNames]
         self.filelocs = fileNames
 
         # Populate the idxByStep Data
